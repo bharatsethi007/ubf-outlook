@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { searchEntities } from '@/lib/api'
 import type { Party, Match, Resolution } from '@/lib/types'
-import { UserPlus, ChevronDown, ChevronRight, Check } from 'lucide-react'
+import { UserPlus, ChevronDown, ChevronRight, Check, X } from 'lucide-react'
 
 const ROLES = ['customer', 'agent', 'shipper', 'consignee', 'notify', 'other']
 
@@ -23,12 +23,11 @@ export function PartyCard({ party, value, onChange, role, onRoleChange, defaultO
   const [q, setQ] = useState('')
   const [remote, setRemote] = useState<{ customers: Match[]; agents: Match[] } | null>(null)
   const [searching, setSearching] = useState(false)
-  const boxRef = useRef<HTMLDivElement>(null)
 
   const customers = remote?.customers ?? party.customer_matches
   const agents = remote?.agents ?? party.agent_matches
+  const selected = value.type !== 'none'
 
-  // debounce live search when the user types in the picker
   useEffect(() => {
     if (!pickerOpen) return
     const t = setTimeout(async () => {
@@ -39,14 +38,6 @@ export function PartyCard({ party, value, onChange, role, onRoleChange, defaultO
     return () => clearTimeout(t)
   }, [q, pickerOpen])
 
-  // close picker on outside click
-  useEffect(() => {
-    function onDoc(e: MouseEvent) { if (boxRef.current && !boxRef.current.contains(e.target as Node)) setPickerOpen(false) }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
-  }, [])
-
-  const selected = value.type !== 'none'
   function choose(r: Resolution) { onChange(r); setPickerOpen(false); setQ(''); setRemote(null) }
 
   return (
@@ -65,19 +56,20 @@ export function PartyCard({ party, value, onChange, role, onRoleChange, defaultO
         </button>
 
         {open && (
-          <div ref={boxRef} className="relative">
-            {/* trigger */}
+          <div className="space-y-1">
+            {/* trigger row */}
             <button onClick={() => setPickerOpen((o) => !o)}
               className="w-full flex items-center justify-between rounded-md border px-2 py-1.5 text-sm hover:bg-muted/40">
               <span className={`truncate ${selected ? '' : 'text-muted-foreground'}`}>{selected ? resLabel(value) : 'Select or create…'}</span>
-              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              {pickerOpen ? <X className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />}
             </button>
 
+            {/* inline panel — expands in place, pushes cards below down (no overlay) */}
             {pickerOpen && (
-              <div className="absolute z-20 mt-1 w-full rounded-md border bg-background shadow-lg p-1 space-y-1 max-h-72 overflow-auto">
-                <Input autoFocus className="h-7 text-xs" placeholder="Type to search customers / agents…"
+              <div className="rounded-md border bg-muted/20 p-1 space-y-1">
+                <Input autoFocus className="h-7 text-xs bg-background" placeholder="Type to search customers / agents…"
                   value={q} onChange={(e) => setQ(e.target.value)} />
-                {searching ? <p className="text-[11px] text-muted-foreground px-1 py-1">Searching…</p> : null}
+                {searching ? <p className="text-[11px] text-muted-foreground px-1">Searching…</p> : null}
 
                 {customers.length > 0 && (
                   <div>
@@ -86,10 +78,10 @@ export function PartyCard({ party, value, onChange, role, onRoleChange, defaultO
                       const active = value.type === 'customer' && value.account_id === m.account_id
                       return (
                         <button key={'c' + m.account_id} onClick={() => choose({ type: 'customer', account_id: m.account_id!, name: m.name })}
-                          className="w-full text-left rounded px-2 py-1 text-sm hover:bg-muted/60 flex items-center gap-2">
-                          {active ? <Check className="h-3 w-3 text-[#0A2472]" /> : <span className="w-3" />}
+                          className="w-full text-left rounded px-2 py-1 text-sm hover:bg-background flex items-center gap-2">
+                          {active ? <Check className="h-3 w-3 text-[#0A2472] shrink-0" /> : <span className="w-3 shrink-0" />}
                           <span className="flex-1 truncate">{m.name}<span className="text-muted-foreground"> · {[m.city, m.country].filter(Boolean).join(', ')}</span></span>
-                          <span className="text-[11px] text-muted-foreground">{m.score.toFixed(2)}</span>
+                          <span className="text-[11px] text-muted-foreground shrink-0">{m.score.toFixed(2)}</span>
                         </button>
                       )
                     })}
@@ -103,10 +95,10 @@ export function PartyCard({ party, value, onChange, role, onRoleChange, defaultO
                       const active = value.type === 'agent' && value.id === m.id
                       return (
                         <button key={'a' + m.id} onClick={() => choose({ type: 'agent', id: m.id!, name: m.name })}
-                          className="w-full text-left rounded px-2 py-1 text-sm hover:bg-muted/60 flex items-center gap-2">
-                          {active ? <Check className="h-3 w-3 text-[#0A2472]" /> : <span className="w-3" />}
+                          className="w-full text-left rounded px-2 py-1 text-sm hover:bg-background flex items-center gap-2">
+                          {active ? <Check className="h-3 w-3 text-[#0A2472] shrink-0" /> : <span className="w-3 shrink-0" />}
                           <span className="flex-1 truncate">{m.name}<span className="text-muted-foreground"> · {[m.country, m.trusted ? 'trusted' : ''].filter(Boolean).join(' · ')}</span></span>
-                          <span className="text-[11px] text-muted-foreground">{m.score.toFixed(2)}</span>
+                          <span className="text-[11px] text-muted-foreground shrink-0">{m.score.toFixed(2)}</span>
                         </button>
                       )
                     })}
@@ -114,20 +106,20 @@ export function PartyCard({ party, value, onChange, role, onRoleChange, defaultO
                 )}
 
                 {q.trim().length >= 2 && customers.length === 0 && agents.length === 0 && !searching ? (
-                  <p className="text-[11px] text-muted-foreground px-2 py-1">No matches.</p>
+                  <p className="text-[11px] text-muted-foreground px-2 py-1">No matches — create below.</p>
                 ) : null}
 
                 <div className="border-t pt-1 mt-1 space-y-0.5">
                   <button onClick={() => choose({ type: 'create_customer', name: party.name })}
-                    className="w-full text-left rounded px-2 py-1 text-sm hover:bg-muted/60 flex items-center gap-2">
-                    <UserPlus className="h-3 w-3" /> Create new customer “{party.name}”
+                    className="w-full text-left rounded px-2 py-1 text-sm hover:bg-background flex items-center gap-2">
+                    <UserPlus className="h-3 w-3 shrink-0" /> Create new customer “{party.name}”
                   </button>
                   <button onClick={() => choose({ type: 'create_agent', name: party.name })}
-                    className="w-full text-left rounded px-2 py-1 text-sm hover:bg-muted/60 flex items-center gap-2">
-                    <UserPlus className="h-3 w-3" /> Create new agent “{party.name}”
+                    className="w-full text-left rounded px-2 py-1 text-sm hover:bg-background flex items-center gap-2">
+                    <UserPlus className="h-3 w-3 shrink-0" /> Create new agent “{party.name}”
                   </button>
                   <button onClick={() => choose({ type: 'none' })}
-                    className="w-full text-left rounded px-2 py-1 text-sm text-muted-foreground hover:bg-muted/60">
+                    className="w-full text-left rounded px-2 py-1 text-sm text-muted-foreground hover:bg-background">
                     Skip this party
                   </button>
                 </div>
