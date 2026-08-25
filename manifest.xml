@@ -6,11 +6,11 @@
   xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
   xsi:type="MailApp">
   <Id>984d1caf-62d3-456e-98be-644a4e3f4878</Id>
-  <Version>1.0.0.0</Version>
+  <Version>1.1.0.0</Version>
   <ProviderName>UB Freight</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="UBF Portal"/>
-  <Description DefaultValue="Send quote requests from Outlook straight into the UBF Portal."/>
+  <DisplayName DefaultValue="UBF Intelligence"/>
+  <Description DefaultValue="Turn emails into draft quotes and bookings in the UBF Portal."/>
   <IconUrl DefaultValue="https://ubf-outlook.netlify.app/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://ubf-outlook.netlify.app/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://ubf-outlook.netlify.app/"/>
@@ -25,7 +25,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://ubf-outlook.netlify.app/index.html"/>
+        <SourceLocation DefaultValue="https://ubf-outlook.netlify.app/index.html?mode=quote"/>
         <RequestedHeight>350</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -46,9 +46,9 @@
         <DesktopFormFactor>
           <ExtensionPoint xsi:type="MessageReadCommandSurface">
             <OfficeTab id="TabDefault">
-              <Group id="ubfPortalGroup">
+              <Group id="ubfIntelligenceGroup">
                 <Label resid="GroupLabel"/>
-                <Control xsi:type="Button" id="ubfSendQuoteButton">
+                <Control xsi:type="Button" id="ubfQuoteButton">
                   <Label resid="QuoteButton.Label"/>
                   <Supertip>
                     <Title resid="QuoteButton.Label"/>
@@ -60,7 +60,22 @@
                     <bt:Image size="80" resid="Icon.80"/>
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
-                    <SourceLocation resid="Taskpane.Url"/>
+                    <SourceLocation resid="Taskpane.Quote.Url"/>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="ubfBookingButton">
+                  <Label resid="BookingButton.Label"/>
+                  <Supertip>
+                    <Title resid="BookingButton.Label"/>
+                    <Description resid="BookingButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16"/>
+                    <bt:Image size="32" resid="Icon.32"/>
+                    <bt:Image size="80" resid="Icon.80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Booking.Url"/>
                   </Action>
                 </Control>
               </Group>
@@ -76,14 +91,17 @@
         <bt:Image id="Icon.80" DefaultValue="https://ubf-outlook.netlify.app/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://ubf-outlook.netlify.app/index.html"/>
+        <bt:Url id="Taskpane.Quote.Url" DefaultValue="https://ubf-outlook.netlify.app/index.html?mode=quote"/>
+        <bt:Url id="Taskpane.Booking.Url" DefaultValue="https://ubf-outlook.netlify.app/index.html?mode=booking"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="UBF Intelligence"/>
-        <bt:String id="QuoteButton.Label" DefaultValue="UBF Intelligence"/>
+        <bt:String id="QuoteButton.Label" DefaultValue="Quote"/>
+        <bt:String id="BookingButton.Label" DefaultValue="Booking"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="QuoteButton.Tooltip" DefaultValue="Extract this email into a draft quote in the UBF Portal."/>
+        <bt:String id="BookingButton.Tooltip" DefaultValue="Extract this email into a draft booking in the UBF Portal."/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
