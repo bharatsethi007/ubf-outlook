@@ -79,8 +79,8 @@
         <bt:Url id="Taskpane.Url" DefaultValue="https://ubf-outlook.netlify.app/index.html"/>
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GroupLabel" DefaultValue="UB Freight"/>
-        <bt:String id="QuoteButton.Label" DefaultValue="Send Quote"/>
+        <bt:String id="GroupLabel" DefaultValue="UBF Intelligence"/>
+        <bt:String id="QuoteButton.Label" DefaultValue="UBF Intelligence"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="QuoteButton.Tooltip" DefaultValue="Extract this email into a draft quote in the UBF Portal."/>
