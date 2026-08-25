@@ -13,11 +13,12 @@ import { LText, LNum, LSelect, LCheck } from '@/components/fields'
 import { PartyCard } from '@/components/PartyCard'
 import { CargoLinesEditor } from '@/components/CargoLinesEditor'
 import type { ExtractResponse, Fields, CargoLine, Resolution } from '@/lib/types'
-import { Send, Loader2, Bot, KeyRound, RefreshCw } from 'lucide-react'
+import { Send, Loader2, Bot, KeyRound, RefreshCw, AlertTriangle } from 'lucide-react'
 
 const NAVY = '#0A2472'
 const MODE_OPTS = [{ v: 'sea', t: 'Sea' }, { v: 'air', t: 'Air' }]
 const TYPE_OPTS = [{ v: 'FCL', t: 'FCL' }, { v: 'LCL', t: 'LCL' }, { v: 'air', t: 'Air' }]
+const COLLAPSED_ROLES = ['other', 'notify']
 
 function pickInitial(p: ExtractResponse['parties'][number]): Resolution {
   const c = p.customer_matches[0], a = p.agent_matches[0]
@@ -81,7 +82,11 @@ export default function App() {
         email_meta: extract.email_meta,
       }
       const r = await commitQuote(payload)
-      toast.success(`Quote ${r.quote_no} created`, { description: 'Open it in the portal to price and send.' })
+      if (r.duplicate) {
+        toast.warning(`Quote already exists: ${r.quote_no}`, { description: 'This email was already turned into a quote.' })
+      } else {
+        toast.success(`Quote ${r.quote_no} created`, { description: 'Open it in the portal to price and send.' })
+      }
     } catch (e: any) {
       toast.error('Commit failed', { description: e.message })
     } finally { setCommitting(false) }
@@ -103,6 +108,13 @@ export default function App() {
         <span className="text-xs text-muted-foreground">Quotation · AI extracted</span>
       </div>
 
+      {extract?.existing && (
+        <div className="mb-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+          <span>A quote already exists for this email: <b>{extract.existing.quote_no}</b>{extract.existing.staff_email ? ` (created by ${extract.existing.staff_email})` : ''}. Creating again will just point to it.</span>
+        </div>
+      )}
+
       {needsSecret && (
         <Card className="mb-3 border-dashed">
           <CardContent className="py-3 space-y-2">
@@ -123,9 +135,7 @@ export default function App() {
         <TabsContent value="quote" className="mt-3 space-y-4">
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {loading || busy ? (
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-1/2" /><Skeleton className="h-20 w-full" /><Skeleton className="h-20 w-full" />
-            </div>
+            <div className="space-y-2"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-20 w-full" /><Skeleton className="h-20 w-full" /></div>
           ) : fields && extract ? (
             <>
               <section className="space-y-2">
@@ -133,6 +143,7 @@ export default function App() {
                 {extract.parties.length === 0 ? <p className="text-xs text-muted-foreground">No parties detected.</p> : null}
                 {extract.parties.map((p, i) => (
                   <PartyCard key={i} party={p} role={roles[i] ?? p.role}
+                    defaultOpen={!COLLAPSED_ROLES.includes((roles[i] ?? p.role))}
                     onRoleChange={(r) => setRoles((prev) => prev.map((x, j) => j === i ? r : x))}
                     value={resolutions[i] ?? { type: 'none' }}
                     onChange={(r) => setResolutions((prev) => prev.map((x, j) => j === i ? r : x))} />
@@ -178,7 +189,7 @@ export default function App() {
               <Separator />
               <Button className="w-full text-white hover:opacity-90" style={{ backgroundColor: NAVY }} disabled={committing} onClick={handleCommit}>
                 {committing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                Create quote in Portal
+                {extract.existing ? 'Open existing quote' : 'Create quote in Portal'}
               </Button>
             </>
           ) : (

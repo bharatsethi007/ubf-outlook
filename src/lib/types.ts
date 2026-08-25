@@ -42,9 +42,11 @@ export type Fields = {
   dg_un_number: string | null
   dg_class: string | null
 }
+export type ExistingQuote = { quote_no: string; created_at: string; staff_email: string | null }
 export type ExtractResponse = {
   ok: boolean
   doc_type: string
+  existing: ExistingQuote | null
   fields: Fields
   cargo_lines: CargoLine[]
   parties: Party[]
