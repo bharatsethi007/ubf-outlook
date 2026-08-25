@@ -48,10 +48,10 @@
             <OfficeTab id="TabDefault">
               <Group id="ubfIntelligenceGroup">
                 <Label resid="GroupLabel"/>
-                <Control xsi:type="Button" id="ubfQuoteButton">
-                  <Label resid="QuoteButton.Label"/>
+                <Control xsi:type="Button" id="ubfIntelligenceButton">
+                  <Label resid="GroupLabel"/>
                   <Supertip>
-                    <Title resid="QuoteButton.Label"/>
+                    <Title resid="GroupLabel"/>
                     <Description resid="QuoteButton.Tooltip"/>
                   </Supertip>
                   <Icon>
@@ -61,21 +61,6 @@
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
                     <SourceLocation resid="Taskpane.Quote.Url"/>
-                  </Action>
-                </Control>
-                <Control xsi:type="Button" id="ubfBookingButton">
-                  <Label resid="BookingButton.Label"/>
-                  <Supertip>
-                    <Title resid="BookingButton.Label"/>
-                    <Description resid="BookingButton.Tooltip"/>
-                  </Supertip>
-                  <Icon>
-                    <bt:Image size="16" resid="Icon.16"/>
-                    <bt:Image size="32" resid="Icon.32"/>
-                    <bt:Image size="80" resid="Icon.80"/>
-                  </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <SourceLocation resid="Taskpane.Booking.Url"/>
                   </Action>
                 </Control>
               </Group>
@@ -100,7 +85,7 @@
         <bt:String id="BookingButton.Label" DefaultValue="Booking"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="QuoteButton.Tooltip" DefaultValue="Extract this email into a draft quote in the UBF Portal."/>
+        <bt:String id="QuoteButton.Tooltip" DefaultValue="Turn this email into a draft quote or booking in the UBF Portal."/>
         <bt:String id="BookingButton.Tooltip" DefaultValue="Extract this email into a draft booking in the UBF Portal."/>
       </bt:LongStrings>
     </Resources>

@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import { readCurrentEmail, getSavedSecret, saveSecret, type EmailData } from '@/lib/office'
 import { QuotePanel } from '@/components/QuotePanel'
 import { BookingPanel } from '@/components/BookingPanel'
-import { KeyRound } from 'lucide-react'
+import { KeyRound, FileText, PackageCheck } from 'lucide-react'
 
 const NAVY = '#0A2472'
-function currentMode(): 'quote' | 'booking' {
+
+function initialMode(): 'quote' | 'booking' {
   try { return new URLSearchParams(window.location.search).get('mode') === 'booking' ? 'booking' : 'quote' } catch { return 'quote' }
 }
 
 export default function App() {
-  const mode = currentMode()
+  const [mode, setMode] = useState<'quote' | 'booking'>(initialMode())
   const [email, setEmail] = useState<EmailData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -34,6 +34,14 @@ export default function App() {
     catch (e: any) { toast.error('Could not save', { description: e.message }) }
   }
 
+  const seg = (m: 'quote' | 'booking', label: string, Icon: any) => (
+    <button onClick={() => setMode(m)}
+      className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition ${mode === m ? 'text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+      style={mode === m ? { backgroundColor: NAVY } : undefined}>
+      <Icon className="h-3.5 w-3.5" />{label}
+    </button>
+  )
+
   return (
     <div className="min-h-screen bg-background text-foreground p-3">
       <Toaster position="top-center" richColors />
@@ -42,9 +50,10 @@ export default function App() {
         <button title="Set access key" onClick={() => setNeedsSecret((v) => !v)} className="text-muted-foreground hover:text-foreground"><KeyRound className="h-4 w-4" /></button>
       </header>
 
-      <div className="flex items-center gap-2 mb-2">
-        <Badge style={{ backgroundColor: NAVY }} className="text-white">{mode === 'booking' ? 'BOOKING' : 'QUOTE REQUEST'}</Badge>
-        <span className="text-xs text-muted-foreground">UBF Intelligence · AI extracted</span>
+      <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">UBF Intelligence · AI extracted</p>
+      <div className="flex gap-1 p-1 rounded-lg bg-muted mb-3">
+        {seg('quote', 'Quote', FileText)}
+        {seg('booking', 'Booking', PackageCheck)}
       </div>
 
       {needsSecret && (
@@ -61,7 +70,7 @@ export default function App() {
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       {loading ? <p className="text-sm text-muted-foreground">Reading email…</p>
         : !hasSecret ? <p className="text-sm text-muted-foreground">Enter your access key to begin.</p>
-        : email ? (mode === 'booking' ? <BookingPanel email={email} /> : <QuotePanel email={email} />)
+        : email ? (mode === 'booking' ? <BookingPanel key="b" email={email} /> : <QuotePanel key="q" email={email} />)
         : <p className="text-sm text-muted-foreground">Open an email to analyse it.</p>}
     </div>
   )
