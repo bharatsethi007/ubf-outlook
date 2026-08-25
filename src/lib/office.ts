@@ -34,3 +34,24 @@ export function readCurrentEmail(): Promise<EmailData> {
     })
   })
 }
+
+// --- Per-user secret, stored in Outlook roamingSettings (never in the repo) ---
+const SECRET_KEY = 'ubfQuoteSecret'
+
+export function getSavedSecret(): string {
+  try { return Office?.context?.roamingSettings?.get(SECRET_KEY) || '' } catch { return '' }
+}
+
+export function saveSecret(secret: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const rs = Office?.context?.roamingSettings
+      if (!rs) { reject(new Error('Settings unavailable in this client.')); return }
+      rs.set(SECRET_KEY, secret)
+      rs.saveAsync((res: any) => {
+        if (res.status === Office.AsyncResultStatus.Succeeded) resolve()
+        else reject(new Error(res.error?.message || 'Could not save the secret.'))
+      })
+    } catch (e) { reject(e as Error) }
+  })
+}
