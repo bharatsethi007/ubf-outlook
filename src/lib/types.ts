@@ -89,3 +89,60 @@ export type PastQuote = {
   currency: string | null
   margin_pct: number | null
 }
+
+export type BookingCargoRaw = {
+  ord?: number
+  pieces: number | null
+  weight_kg: number | null
+  length_cm: number | null
+  width_cm: number | null
+  height_cm: number | null
+  goods_desc: string | null
+}
+export type BookingFields = {
+  module: string | null
+  incoterm: string | null
+  origin: string | null
+  destination: string | null
+  pol_code: string | null
+  pod_code: string | null
+  commodity: string | null
+  goods_description: string | null
+  packing_type: string | null
+  pieces: number | null
+  gross_weight_kg: number | null
+  volume_m3: number | null
+  shipper_address: string | null
+  shipper_city: string | null
+  shipper_country: string | null
+  shipper_phone: string | null
+  shipper_email: string | null
+  consignee_address: string | null
+  consignee_city: string | null
+  consignee_country: string | null
+  consignee_phone: string | null
+  consignee_email: string | null
+  notify_name: string | null
+  notify_address: string | null
+  notify_country: string | null
+  cargo_ready_date: string | null
+  etd: string | null
+  is_dg: boolean
+  un_number: string | null
+  dg_class: string | null
+  is_temp_controlled: boolean
+  temp_range: string | null
+}
+export type BookingExistingRef = { booking_ref: string; created_at: string; staff_email: string | null }
+export type BookingExtractResponse = {
+  ok: boolean
+  doc_type: string
+  existing: BookingExistingRef | null
+  module_guess: string | null
+  fields: BookingFields
+  cargo_lines: BookingCargoRaw[]
+  parties: Party[]
+  low_confidence: string[]
+  email_meta: Record<string, unknown>
+  error?: string
+}
