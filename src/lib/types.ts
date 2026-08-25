@@ -60,3 +60,32 @@ export type Resolution =
   | { type: 'create_customer'; name: string }
   | { type: 'create_agent'; name: string }
   | { type: 'none' }
+
+export type RateOption = {
+  product: 'FCL' | 'LCL' | 'AIR'
+  carrier: string | null
+  container_type: string | null
+  buy: number | null
+  sell: number | null
+  currency: string | null
+  transit_days: number | null
+  via: string | null
+  valid_to: string | null
+  confidence: string | null
+  unit: string | null
+  min_charge?: number | null
+  air_breaks?: Record<string, number | null>
+}
+export type PastQuote = {
+  quote_no: string
+  customer: string | null
+  status: string
+  mode: string | null
+  type: string | null
+  pol: string | null
+  pod: string | null
+  created_at: string
+  total_sell: number | null
+  currency: string | null
+  margin_pct: number | null
+}

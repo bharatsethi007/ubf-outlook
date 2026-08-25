@@ -1,4 +1,5 @@
 import { getSavedSecret } from './office'
+import type { RateOption, PastQuote } from './types'
 
 const BASE = 'https://cpnkudbdzgnzmodhsrbf.supabase.co/functions/v1'
 
@@ -20,3 +21,8 @@ export const extractQuote = (email: unknown) => post('quote-extract', email)
 export const searchEntities = (query: string) =>
   post('entity-search', { query }) as Promise<{ customers: any[]; agents: any[] }>
 export const commitQuote = (payload: unknown) => post('quote-commit', payload)
+
+export const searchRates = (body: { pol?: string; pod: string; mode?: string; type?: string; container?: string }) =>
+  post('rate-search', body) as Promise<{ options: RateOption[] }>
+export const similarQuotes = (body: { pol?: string; pod?: string; account?: string }) =>
+  post('similar-quotes', body) as Promise<{ quotes: PastQuote[] }>

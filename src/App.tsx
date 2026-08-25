@@ -12,6 +12,7 @@ import { extractQuote, commitQuote } from '@/lib/api'
 import { LText, LNum, LSelect, LCheck } from '@/components/fields'
 import { PartyCard } from '@/components/PartyCard'
 import { CargoLinesEditor } from '@/components/CargoLinesEditor'
+import { AiRates } from '@/components/AiRates'
 import type { ExtractResponse, Fields, CargoLine, Resolution } from '@/lib/types'
 import { Send, Loader2, Bot, KeyRound, RefreshCw, AlertTriangle } from 'lucide-react'
 
@@ -199,7 +200,13 @@ export default function App() {
         </TabsContent>
 
         <TabsContent value="assistant" className="mt-3">
-          <Card><CardContent className="py-10 text-center text-sm text-muted-foreground"><Bot className="h-6 w-6 mx-auto mb-2 opacity-60" />AI rate search & similar past quotes land here next.</CardContent></Card>
+          <AiRates
+            initialPol={fields?.pol_code ?? ''}
+            initialPod={fields?.pod_code ?? ''}
+            initialMode={fields?.shipment_mode ?? ''}
+            initialType={fields?.shipment_type ?? ''}
+            accountId={(resolutions.find((r) => r.type === 'customer') as any)?.account_id ?? null}
+          />
         </TabsContent>
       </Tabs>
     </div>
