@@ -11,9 +11,9 @@
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="UBF Portal"/>
   <Description DefaultValue="Send quote requests from Outlook straight into the UBF Portal."/>
-  <IconUrl DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://bharatsethi007.github.io/ubf-outlook/"/>
+  <IconUrl DefaultValue="https://ubf-outlook.netlify.app/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://ubf-outlook.netlify.app/assets/icon-128.png"/>
+  <SupportUrl DefaultValue="https://ubf-outlook.netlify.app/"/>
   <Hosts>
     <Host Name="Mailbox"/>
   </Hosts>
@@ -25,7 +25,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://bharatsethi007.github.io/ubf-outlook/taskpane.html"/>
+        <SourceLocation DefaultValue="https://ubf-outlook.netlify.app/index.html"/>
         <RequestedHeight>350</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -71,15 +71,15 @@
     </Hosts>
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16" DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-16.png"/>
-        <bt:Image id="Icon.32" DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-32.png"/>
-        <bt:Image id="Icon.80" DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-80.png"/>
+        <bt:Image id="Icon.16" DefaultValue="https://ubf-outlook.netlify.app/assets/icon-16.png"/>
+        <bt:Image id="Icon.32" DefaultValue="https://ubf-outlook.netlify.app/assets/icon-32.png"/>
+        <bt:Image id="Icon.80" DefaultValue="https://ubf-outlook.netlify.app/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://bharatsethi007.github.io/ubf-outlook/taskpane.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://ubf-outlook.netlify.app/index.html"/>
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GroupLabel" DefaultValue="UBF Portal"/>
+        <bt:String id="GroupLabel" DefaultValue="UB Freight"/>
         <bt:String id="QuoteButton.Label" DefaultValue="Send Quote"/>
       </bt:ShortStrings>
       <bt:LongStrings>
