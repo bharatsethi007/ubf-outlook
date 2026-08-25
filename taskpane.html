@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UBF Portal — Send Quote</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    :root { --navy:#0A2472; --orange:#F26A21; --ink:#1f2430; --muted:#6b7280; --line:#e5e7eb; }
+    * { box-sizing:border-box; }
+    body { font-family:'Segoe UI',system-ui,sans-serif; margin:0; color:var(--ink); background:#fff; padding:16px; }
+    .brand { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+    .brand b { color:var(--navy); font-size:15px; }
+    .field { margin-bottom:12px; }
+    .field label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin-bottom:3px; }
+    .field .val { font-size:13px; word-break:break-word; }
+    .preview { font-size:12px; white-space:pre-wrap; background:#f8fafc; border:1px solid var(--line); border-radius:8px; padding:10px; max-height:180px; overflow:auto; color:#374151; }
+    button { width:100%; border:0; border-radius:8px; padding:11px; font-size:14px; font-weight:600; color:#fff; background:var(--navy); cursor:pointer; margin-top:6px; }
+    button:disabled { opacity:.5; cursor:default; }
+    .status { margin-top:10px; font-size:12px; min-height:16px; }
+    .status--ok { color:#15803d; } .status--warn { color:#b45309; } .status--err { color:#b91c1c; }
+  </style>
+</head>
+<body>
+  <div class="brand"><b>UBF Portal — Send Quote</b></div>
+  <div class="field"><label>Subject</label><div class="val" id="subject">—</div></div>
+  <div class="field"><label>From</label><div class="val" id="sender">—</div></div>
+  <div class="field"><label>Body</label><div class="preview" id="preview">Loading…</div></div>
+  <button id="sendBtn">Send to UBF Portal</button>
+  <div class="status" id="status"></div>
+  <script src="taskpane.js"></script>
+</body>
+</html>

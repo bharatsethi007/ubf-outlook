@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
+  xsi:type="MailApp">
+  <Id>984d1caf-62d3-456e-98be-644a4e3f4878</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>UB Freight</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="UBF Portal"/>
+  <Description DefaultValue="Send quote requests from Outlook straight into the UBF Portal."/>
+  <IconUrl DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-128.png"/>
+  <SupportUrl DefaultValue="https://bharatsethi007.github.io/ubf-outlook/"/>
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.5"/>
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://bharatsethi007.github.io/ubf-outlook/taskpane.html"/>
+        <RequestedHeight>350</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read"/>
+  </Rule>
+  <DisableEntityHighlighting>false</DisableEntityHighlighting>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.5">
+        <bt:Set Name="Mailbox"/>
+      </bt:Sets>
+    </Requirements>
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="ubfPortalGroup">
+                <Label resid="GroupLabel"/>
+                <Control xsi:type="Button" id="ubfSendQuoteButton">
+                  <Label resid="QuoteButton.Label"/>
+                  <Supertip>
+                    <Title resid="QuoteButton.Label"/>
+                    <Description resid="QuoteButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16"/>
+                    <bt:Image size="32" resid="Icon.32"/>
+                    <bt:Image size="80" resid="Icon.80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-16.png"/>
+        <bt:Image id="Icon.32" DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-32.png"/>
+        <bt:Image id="Icon.80" DefaultValue="https://bharatsethi007.github.io/ubf-outlook/assets/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://bharatsethi007.github.io/ubf-outlook/taskpane.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GroupLabel" DefaultValue="UBF Portal"/>
+        <bt:String id="QuoteButton.Label" DefaultValue="Send Quote"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="QuoteButton.Tooltip" DefaultValue="Extract this email into a draft quote in the UBF Portal."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
