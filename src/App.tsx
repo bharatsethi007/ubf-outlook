@@ -20,13 +20,8 @@ const MODE_OPTS = [{ v: 'sea', t: 'Sea' }, { v: 'air', t: 'Air' }]
 const TYPE_OPTS = [{ v: 'FCL', t: 'FCL' }, { v: 'LCL', t: 'LCL' }, { v: 'air', t: 'Air' }]
 const COLLAPSED_ROLES = ['other', 'notify']
 
-function pickInitial(p: ExtractResponse['parties'][number]): Resolution {
-  const c = p.customer_matches[0], a = p.agent_matches[0]
-  const cs = c?.score ?? 0, as = a?.score ?? 0
-  if (p.role === 'agent' && as >= 0.75) return { type: 'agent', id: a.id!, name: a.name }
-  if (cs >= 0.75 && cs >= as) return { type: 'customer', account_id: c.account_id!, name: c.name }
-  if (as >= 0.75) return { type: 'agent', id: a.id!, name: a.name }
-  return { type: 'create_customer', name: p.name }
+function pickInitial(_p: ExtractResponse['parties'][number]): Resolution {
+  return { type: 'none' }
 }
 
 export default function App() {

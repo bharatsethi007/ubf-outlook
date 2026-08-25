@@ -1,50 +1,53 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { searchEntities } from '@/lib/api'
 import type { Party, Match, Resolution } from '@/lib/types'
-import { UserPlus, Search, ChevronDown, ChevronRight } from 'lucide-react'
+import { UserPlus, ChevronDown, ChevronRight, Check } from 'lucide-react'
 
 const ROLES = ['customer', 'agent', 'shipper', 'consignee', 'notify', 'other']
 
 function resLabel(v: Resolution): string {
-  if (v.type === 'customer') return `✓ ${v.name}`
-  if (v.type === 'agent') return `✓ ${v.name} · agent`
-  if (v.type === 'create_customer') return `＋ new customer`
-  if (v.type === 'create_agent') return `＋ new agent`
-  return 'skipped'
-}
-
-function Row({ active, onClick, title, meta, score }: { active: boolean; onClick: () => void; title: string; meta?: string; score?: number }) {
-  return (
-    <button onClick={onClick}
-      className={`w-full text-left rounded-md border px-2 py-1.5 text-sm flex items-center gap-2 ${active ? 'border-[#0A2472] bg-[#0A2472]/5' : 'hover:bg-muted/40'}`}>
-      <span className={`h-3 w-3 rounded-full border shrink-0 ${active ? 'bg-[#0A2472] border-[#0A2472]' : 'border-muted-foreground'}`} />
-      <span className="flex-1 truncate">{title}{meta ? <span className="text-muted-foreground"> · {meta}</span> : null}</span>
-      {score != null ? <span className="text-[11px] text-muted-foreground shrink-0">{score.toFixed(2)}</span> : null}
-    </button>
-  )
+  if (v.type === 'customer') return `${v.name}`
+  if (v.type === 'agent') return `${v.name} · agent`
+  if (v.type === 'create_customer') return `New customer: ${v.name}`
+  if (v.type === 'create_agent') return `New agent: ${v.name}`
+  return 'Not selected'
 }
 
 export function PartyCard({ party, value, onChange, role, onRoleChange, defaultOpen }: {
   party: Party; value: Resolution; onChange: (r: Resolution) => void; role: string; onRoleChange: (r: string) => void; defaultOpen: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
-  const [custom, setCustom] = useState<{ customers: Match[]; agents: Match[] } | null>(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
   const [q, setQ] = useState('')
+  const [remote, setRemote] = useState<{ customers: Match[]; agents: Match[] } | null>(null)
   const [searching, setSearching] = useState(false)
+  const boxRef = useRef<HTMLDivElement>(null)
 
-  const customers = custom?.customers ?? party.customer_matches
-  const agents = custom?.agents ?? party.agent_matches
+  const customers = remote?.customers ?? party.customer_matches
+  const agents = remote?.agents ?? party.agent_matches
 
-  async function doSearch() {
-    if (q.trim().length < 2) return
-    setSearching(true)
-    try { setCustom(await searchEntities(q.trim())) } finally { setSearching(false) }
-  }
+  // debounce live search when the user types in the picker
+  useEffect(() => {
+    if (!pickerOpen) return
+    const t = setTimeout(async () => {
+      if (q.trim().length < 2) { setRemote(null); return }
+      setSearching(true)
+      try { setRemote(await searchEntities(q.trim())) } finally { setSearching(false) }
+    }, 250)
+    return () => clearTimeout(t)
+  }, [q, pickerOpen])
 
-  const isCust = (m: Match) => value.type === 'customer' && value.account_id === m.account_id
-  const isAgent = (m: Match) => value.type === 'agent' && value.id === m.id
+  // close picker on outside click
+  useEffect(() => {
+    function onDoc(e: MouseEvent) { if (boxRef.current && !boxRef.current.contains(e.target as Node)) setPickerOpen(false) }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [])
+
+  const selected = value.type !== 'none'
+  function choose(r: Resolution) { onChange(r); setPickerOpen(false); setQ(''); setRemote(null) }
 
   return (
     <Card>
@@ -53,7 +56,7 @@ export function PartyCard({ party, value, onChange, role, onRoleChange, defaultO
           {open ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{party.name}</p>
-            <p className="text-[11px] text-muted-foreground truncate">{resLabel(value)}{party.email ? ` · ${party.email}` : ''}</p>
+            <p className={`text-[11px] truncate ${selected ? 'text-foreground' : 'text-amber-600'}`}>{resLabel(value)}{party.email ? ` · ${party.email}` : ''}</p>
           </div>
           <select className="h-7 rounded-md border bg-background px-1 text-xs shrink-0" value={role}
             onClick={(e) => e.stopPropagation()} onChange={(e) => onRoleChange(e.target.value)}>
@@ -62,49 +65,75 @@ export function PartyCard({ party, value, onChange, role, onRoleChange, defaultO
         </button>
 
         {open && (
-          <>
-            {customers.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground pl-1">Customers</p>
-                {customers.slice(0, 4).map((m) => (
-                  <Row key={'c' + m.account_id} active={isCust(m)} title={m.name} meta={[m.city, m.country].filter(Boolean).join(', ')} score={m.score}
-                    onClick={() => onChange({ type: 'customer', account_id: m.account_id!, name: m.name })} />
-                ))}
+          <div ref={boxRef} className="relative">
+            {/* trigger */}
+            <button onClick={() => setPickerOpen((o) => !o)}
+              className="w-full flex items-center justify-between rounded-md border px-2 py-1.5 text-sm hover:bg-muted/40">
+              <span className={`truncate ${selected ? '' : 'text-muted-foreground'}`}>{selected ? resLabel(value) : 'Select or create…'}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </button>
+
+            {pickerOpen && (
+              <div className="absolute z-20 mt-1 w-full rounded-md border bg-background shadow-lg p-1 space-y-1 max-h-72 overflow-auto">
+                <Input autoFocus className="h-7 text-xs" placeholder="Type to search customers / agents…"
+                  value={q} onChange={(e) => setQ(e.target.value)} />
+                {searching ? <p className="text-[11px] text-muted-foreground px-1 py-1">Searching…</p> : null}
+
+                {customers.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground px-1 pt-1">Customers</p>
+                    {customers.slice(0, 6).map((m) => {
+                      const active = value.type === 'customer' && value.account_id === m.account_id
+                      return (
+                        <button key={'c' + m.account_id} onClick={() => choose({ type: 'customer', account_id: m.account_id!, name: m.name })}
+                          className="w-full text-left rounded px-2 py-1 text-sm hover:bg-muted/60 flex items-center gap-2">
+                          {active ? <Check className="h-3 w-3 text-[#0A2472]" /> : <span className="w-3" />}
+                          <span className="flex-1 truncate">{m.name}<span className="text-muted-foreground"> · {[m.city, m.country].filter(Boolean).join(', ')}</span></span>
+                          <span className="text-[11px] text-muted-foreground">{m.score.toFixed(2)}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {agents.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground px-1 pt-1">Agents</p>
+                    {agents.slice(0, 6).map((m) => {
+                      const active = value.type === 'agent' && value.id === m.id
+                      return (
+                        <button key={'a' + m.id} onClick={() => choose({ type: 'agent', id: m.id!, name: m.name })}
+                          className="w-full text-left rounded px-2 py-1 text-sm hover:bg-muted/60 flex items-center gap-2">
+                          {active ? <Check className="h-3 w-3 text-[#0A2472]" /> : <span className="w-3" />}
+                          <span className="flex-1 truncate">{m.name}<span className="text-muted-foreground"> · {[m.country, m.trusted ? 'trusted' : ''].filter(Boolean).join(' · ')}</span></span>
+                          <span className="text-[11px] text-muted-foreground">{m.score.toFixed(2)}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {q.trim().length >= 2 && customers.length === 0 && agents.length === 0 && !searching ? (
+                  <p className="text-[11px] text-muted-foreground px-2 py-1">No matches.</p>
+                ) : null}
+
+                <div className="border-t pt-1 mt-1 space-y-0.5">
+                  <button onClick={() => choose({ type: 'create_customer', name: party.name })}
+                    className="w-full text-left rounded px-2 py-1 text-sm hover:bg-muted/60 flex items-center gap-2">
+                    <UserPlus className="h-3 w-3" /> Create new customer “{party.name}”
+                  </button>
+                  <button onClick={() => choose({ type: 'create_agent', name: party.name })}
+                    className="w-full text-left rounded px-2 py-1 text-sm hover:bg-muted/60 flex items-center gap-2">
+                    <UserPlus className="h-3 w-3" /> Create new agent “{party.name}”
+                  </button>
+                  <button onClick={() => choose({ type: 'none' })}
+                    className="w-full text-left rounded px-2 py-1 text-sm text-muted-foreground hover:bg-muted/60">
+                    Skip this party
+                  </button>
+                </div>
               </div>
             )}
-            {agents.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground pl-1">Agents</p>
-                {agents.slice(0, 4).map((m) => (
-                  <Row key={'a' + m.id} active={isAgent(m)} title={m.name} meta={[m.country, m.trusted ? 'trusted' : ''].filter(Boolean).join(' · ')} score={m.score}
-                    onClick={() => onChange({ type: 'agent', id: m.id!, name: m.name })} />
-                ))}
-              </div>
-            )}
-
-            <div className="flex items-center gap-1">
-              <Input className="h-7 text-xs" placeholder="Search customers / agents…" value={q}
-                onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') doSearch() }} />
-              <button onClick={doSearch} className="rounded-md border px-2 py-1 text-xs shrink-0" disabled={searching}>
-                <Search className="h-3 w-3" />
-              </button>
-            </div>
-
-            <div className="flex flex-wrap gap-1.5">
-              <button onClick={() => onChange({ type: 'create_customer', name: party.name })}
-                className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs ${value.type === 'create_customer' ? 'border-[#0A2472] bg-[#0A2472]/5' : 'hover:bg-muted/40'}`}>
-                <UserPlus className="h-3 w-3" /> New customer
-              </button>
-              <button onClick={() => onChange({ type: 'create_agent', name: party.name })}
-                className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs ${value.type === 'create_agent' ? 'border-[#0A2472] bg-[#0A2472]/5' : 'hover:bg-muted/40'}`}>
-                <UserPlus className="h-3 w-3" /> New agent
-              </button>
-              <button onClick={() => onChange({ type: 'none' })}
-                className={`rounded-md border px-2 py-1 text-xs ${value.type === 'none' ? 'border-[#0A2472] bg-[#0A2472]/5' : 'hover:bg-muted/40'}`}>
-                Skip
-              </button>
-            </div>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>
