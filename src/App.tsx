@@ -124,7 +124,7 @@ export default function App() {
       <Tabs defaultValue="quote" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="quote">Quote</TabsTrigger>
-          <TabsTrigger value="assistant"><Bot className="h-3.5 w-3.5 mr-1" />Assistant</TabsTrigger>
+          <TabsTrigger value="assistant"><Bot className="h-3.5 w-3.5 mr-1" />AI Rates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="quote" className="mt-3 space-y-4">
@@ -181,6 +181,12 @@ export default function App() {
                 <p className="text-xs text-amber-600">⚠ Needs review: {extract.low_confidence.join(', ')}</p>
               ) : null}
 
+              {(() => {
+                const missing = (extract.parties || []).filter((p, i) => ['customer', 'agent'].includes(roles[i] ?? p.role) && ((resolutions[i]?.type ?? 'none') === 'none'))
+                return missing.length ? (
+                  <p className="text-xs text-amber-600">⚠ No selection for: {missing.map((p) => p.name).join(', ')} — these won't be linked. You can still create the quote.</p>
+                ) : null
+              })()}
               <Separator />
               <Button className="w-full text-white hover:opacity-90" style={{ backgroundColor: NAVY }} disabled={committing} onClick={handleCommit}>
                 {committing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
@@ -193,7 +199,7 @@ export default function App() {
         </TabsContent>
 
         <TabsContent value="assistant" className="mt-3">
-          <Card><CardContent className="py-10 text-center text-sm text-muted-foreground"><Bot className="h-6 w-6 mx-auto mb-2 opacity-60" />Assistant chat lands here next.</CardContent></Card>
+          <Card><CardContent className="py-10 text-center text-sm text-muted-foreground"><Bot className="h-6 w-6 mx-auto mb-2 opacity-60" />AI rate search & similar past quotes land here next.</CardContent></Card>
         </TabsContent>
       </Tabs>
     </div>
