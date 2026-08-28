@@ -7,17 +7,17 @@ import { readCurrentEmail, getSavedSecret, saveSecret, type EmailData } from '@/
 import { QuotePanel } from '@/components/QuotePanel'
 import { BookingPanel } from '@/components/BookingPanel'
 import { TmsPanel } from '@/components/TmsPanel'
-import { ComplaintsPanel } from '@/components/ComplaintsPanel'
+import { CsFeedbackPanel } from '@/components/CsFeedbackPanel'
 import { Home, type AppView } from '@/components/Home'
 import { KeyRound, ChevronLeft } from 'lucide-react'
 
 type View = 'home' | AppView
-const TITLES: Record<AppView, string> = { quote: 'Quote', booking: 'Booking', tms: 'TMS', complaints: 'Complaints' }
+const TITLES: Record<AppView, string> = { quote: 'Quote', booking: 'Booking', tms: 'TMS', cs_feedback: 'CS Feedbacks' }
 
 function initialView(): View {
   try {
     const m = new URLSearchParams(window.location.search).get('mode')
-    if (m === 'quote' || m === 'booking' || m === 'tms' || m === 'complaints') return m
+    if (m === 'quote' || m === 'booking' || m === 'tms' || m === 'cs_feedback') return m
   } catch { /* noop */ }
   return 'home'
 }
@@ -91,7 +91,7 @@ export default function App() {
       ) : view === 'tms' ? (
         <TmsPanel key="t" email={email} />
       ) : (
-        <ComplaintsPanel key="c" email={email} />
+        <CsFeedbackPanel key="c" email={email} />
       )}
     </div>
   )

@@ -1,13 +1,13 @@
-import { FileText, PackageCheck, Truck, MessageSquareWarning } from 'lucide-react'
+import { FileText, PackageCheck, Truck, MessageSquareText } from 'lucide-react'
 
 const NAVY = '#0A2472'
-export type AppView = 'quote' | 'booking' | 'tms' | 'complaints'
+export type AppView = 'quote' | 'booking' | 'tms' | 'cs_feedback'
 
 const TILES: { view: AppView; label: string; Icon: typeof FileText; hint: string }[] = [
   { view: 'quote', label: 'Quote', Icon: FileText, hint: 'Draft a quote from this email' },
   { view: 'booking', label: 'Booking', Icon: PackageCheck, hint: 'Draft a booking from this email' },
   { view: 'tms', label: 'TMS', Icon: Truck, hint: 'Add a transport job' },
-  { view: 'complaints', label: 'Complaints', Icon: MessageSquareWarning, hint: 'Log a complaint' },
+  { view: 'cs_feedback', label: 'CS Feedbacks', Icon: MessageSquareText, hint: 'Log customer feedback' },
 ]
 
 export function Home({ onPick }: { onPick: (v: AppView) => void }) {
