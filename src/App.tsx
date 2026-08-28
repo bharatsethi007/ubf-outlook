@@ -6,16 +6,24 @@ import { toast } from 'sonner'
 import { readCurrentEmail, getSavedSecret, saveSecret, type EmailData } from '@/lib/office'
 import { QuotePanel } from '@/components/QuotePanel'
 import { BookingPanel } from '@/components/BookingPanel'
-import { KeyRound, FileText, PackageCheck } from 'lucide-react'
+import { TmsPanel } from '@/components/TmsPanel'
+import { ComplaintsPanel } from '@/components/ComplaintsPanel'
+import { Home, type AppView } from '@/components/Home'
+import { KeyRound, ChevronLeft } from 'lucide-react'
 
-const NAVY = '#0A2472'
+type View = 'home' | AppView
+const TITLES: Record<AppView, string> = { quote: 'Quote', booking: 'Booking', tms: 'TMS', complaints: 'Complaints' }
 
-function initialMode(): 'quote' | 'booking' {
-  try { return new URLSearchParams(window.location.search).get('mode') === 'booking' ? 'booking' : 'quote' } catch { return 'quote' }
+function initialView(): View {
+  try {
+    const m = new URLSearchParams(window.location.search).get('mode')
+    if (m === 'quote' || m === 'booking' || m === 'tms' || m === 'complaints') return m
+  } catch { /* noop */ }
+  return 'home'
 }
 
 export default function App() {
-  const [mode, setMode] = useState<'quote' | 'booking'>(initialMode())
+  const [view, setView] = useState<View>(initialView())
   const [email, setEmail] = useState<EmailData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -34,27 +42,26 @@ export default function App() {
     catch (e: any) { toast.error('Could not save', { description: e.message }) }
   }
 
-  const seg = (m: 'quote' | 'booking', label: string, Icon: any) => (
-    <button onClick={() => setMode(m)}
-      className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition ${mode === m ? 'text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-      style={mode === m ? { backgroundColor: NAVY } : undefined}>
-      <Icon className="h-3.5 w-3.5" />{label}
-    </button>
-  )
+  const onHome = view === 'home'
 
   return (
     <div className="min-h-screen bg-background text-foreground p-3">
       <Toaster position="top-center" richColors />
       <header className="flex items-center justify-between mb-2">
-        <img src={`${import.meta.env.BASE_URL}assets/ubf-logo.png`} alt="UB Freight" className="h-6" />
+        <div className="flex items-center gap-2">
+          {!onHome && (
+            <button title="Back to menu" onClick={() => setView('home')} className="text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+          <img src={`${import.meta.env.BASE_URL}assets/ubf-logo.png`} alt="UB Freight" className="h-6" />
+        </div>
         <button title="Set access key" onClick={() => setNeedsSecret((v) => !v)} className="text-muted-foreground hover:text-foreground"><KeyRound className="h-4 w-4" /></button>
       </header>
 
-      <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">UBF Intelligence · AI extracted</p>
-      <div className="flex gap-1 p-1 rounded-lg bg-muted mb-3">
-        {seg('quote', 'Quote', FileText)}
-        {seg('booking', 'Booking', PackageCheck)}
-      </div>
+      <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-3">
+        UBF Intelligence{onHome ? '' : ` · ${TITLES[view]}`}
+      </p>
 
       {needsSecret && (
         <Card className="mb-3 border-dashed">
@@ -67,11 +74,25 @@ export default function App() {
         </Card>
       )}
 
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      {loading ? <p className="text-sm text-muted-foreground">Reading email…</p>
-        : !hasSecret ? <p className="text-sm text-muted-foreground">Enter your access key to begin.</p>
-        : email ? (mode === 'booking' ? <BookingPanel key="b" email={email} /> : <QuotePanel key="q" email={email} />)
-        : <p className="text-sm text-muted-foreground">Open an email to analyse it.</p>}
+      {error ? <p className="text-sm text-destructive mb-2">{error}</p> : null}
+
+      {onHome ? (
+        <Home onPick={setView} />
+      ) : loading ? (
+        <p className="text-sm text-muted-foreground">Reading email…</p>
+      ) : !hasSecret ? (
+        <p className="text-sm text-muted-foreground">Enter your access key to begin.</p>
+      ) : !email ? (
+        <p className="text-sm text-muted-foreground">Open an email to analyse it.</p>
+      ) : view === 'quote' ? (
+        <QuotePanel key="q" email={email} />
+      ) : view === 'booking' ? (
+        <BookingPanel key="b" email={email} />
+      ) : view === 'tms' ? (
+        <TmsPanel key="t" email={email} />
+      ) : (
+        <ComplaintsPanel key="c" email={email} />
+      )}
     </div>
   )
 }
