@@ -146,3 +146,52 @@ export type BookingExtractResponse = {
   email_meta: Record<string, unknown>
   error?: string
 }
+
+export type TmsCargoRaw = {
+  ord?: number
+  type: string
+  units: number | null
+  weight_kg: number | null
+  length_cm: number | null
+  width_cm: number | null
+  height_cm: number | null
+  marks: string | null
+}
+export type TmsFields = {
+  order_type: string
+  sender_company: string | null
+  sender_contact: string | null
+  sender_phone: string | null
+  sender_email: string | null
+  sender_address: string | null
+  sender_additional_info: string | null
+  receiver_company: string | null
+  receiver_contact: string | null
+  receiver_phone: string | null
+  receiver_email: string | null
+  receiver_address: string | null
+  receiver_additional_info: string | null
+  preferred_pickup_at: string | null
+  preferred_delivery_at: string | null
+  reference: string | null
+  po_number: string | null
+  delivery_instructions: string | null
+  urgent: boolean
+  tail_lift_required: boolean
+  fragile: boolean
+  temperature_control: boolean
+  signature_required: boolean
+  is_dg: boolean
+  dangerous_goods_reason: string | null
+}
+export type TmsExistingRef = { consignment_no: string; created_at: string; staff_email: string | null }
+export type TmsExtractResponse = {
+  ok: boolean
+  doc_type: string
+  existing: TmsExistingRef | null
+  fields: TmsFields
+  cargo_lines: TmsCargoRaw[]
+  low_confidence: string[]
+  email_meta: Record<string, unknown>
+  error?: string
+}

@@ -1,5 +1,5 @@
 import { getSavedSecret } from './office'
-import type { RateOption, PastQuote, BookingExtractResponse } from './types'
+import type { RateOption, PastQuote, BookingExtractResponse, TmsExtractResponse } from './types'
 
 const BASE = 'https://cpnkudbdzgnzmodhsrbf.supabase.co/functions/v1'
 
@@ -29,3 +29,6 @@ export const similarQuotes = (body: { pol?: string; pod?: string; account?: stri
 
 export const bookingExtract = (email: unknown) => post('booking-extract', email) as Promise<BookingExtractResponse>
 export const bookingCommit = (payload: unknown) => post('booking-commit', payload)
+
+export const tmsExtract = (email: unknown) => post('tms-extract', email) as Promise<TmsExtractResponse>
+export const tmsCommit = (payload: unknown) => post('tms-commit', payload)
